@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:sizer/sizer.dart';
 import 'package:vetucaldas/custom/form_builder.dart';
 
 class PaginaFormulario extends StatefulWidget {
   static const String routename = 'formulario';
 
   const PaginaFormulario({super.key});
+
   @override
-  State<PaginaFormulario> createState() => _PaginaFormulario();
+  State<PaginaFormulario> createState() => _PaginaFormularioState();
 }
 
-class _PaginaFormulario extends State<PaginaFormulario> {
+class _PaginaFormularioState extends State<PaginaFormulario> {
   final GlobalKey<FormBuilderState> _formkey = GlobalKey<FormBuilderState>();
 
   void _submitForm() {
@@ -57,7 +57,7 @@ class _PaginaFormulario extends State<PaginaFormulario> {
                       Text(
                         'Agendar cita',
                         style: TextStyle(
-                          fontSize: 20.sp,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),
