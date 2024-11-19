@@ -171,4 +171,15 @@ class CustomValidators {
       FormBuilderValidators.maxLength(10, errorText: 'La cédula debe tener entre 8 y 10 dígitos'),
     ]);
   }
+
+  static String? Function(String?) colombianMail() {
+  return FormBuilderValidators.compose([
+    FormBuilderValidators.required(errorText: 'El correo es requerido'),
+    FormBuilderValidators.email(errorText: 'Ingrese un correo válido'),
+    FormBuilderValidators.match(
+      RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'), // Usa RegExp en lugar de String
+      errorText: 'El formato del correo no es válido',),
+      ]);
+  }
+
 }
