@@ -146,6 +146,14 @@ class _PaginaFormularioState extends State<PaginaFormulario> {
                   icon: Icons.phone_android,
                   validator: CustomValidators.colombianPhone(),
                 ),
+
+                FormBuilderCustom(
+                  keytype: TextInputType.emailAddress,
+                  name: 'Correo_dueño',
+                  hinText: 'Correo electrónico',
+                  icon: Icons.email,
+                  validator: CustomValidators.colombianMail(),
+                ),
               ],
             ),
           ),
