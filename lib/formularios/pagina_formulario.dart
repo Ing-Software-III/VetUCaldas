@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:vetucaldas/custom/form_builder.dart';
+import 'package:vetucaldas/citas_service.dart';
 
 class PaginaFormulario extends StatefulWidget {
   static const String routename = 'formulario';
@@ -15,22 +16,39 @@ class PaginaFormulario extends StatefulWidget {
 class _PaginaFormularioState extends State<PaginaFormulario> {
   final GlobalKey<FormBuilderState> _formkey = GlobalKey<FormBuilderState>();
 
-  void _submitForm() {
-    if (_formkey.currentState?.validate() == true) {
-      final values = _formkey.currentState?.value;
-      // Aquí puedes procesar los valores del formulario
-      print('Nombre mascota: ${values?['Nombre_mascota']}');
-      print('Fecha cita: ${values?['Fecha_cita']}');
-      print('Hora cita: ${values?['Hora_cita']}');
-      
+  void _submitForm() async {
+  if (_formkey.currentState?.validate() == true) {
+    final values = _formkey.currentState?.value;
+
+    final body = {
+      "nombre_mascota": values?['Nombre_mascota'],
+      "nombre_dueño": values?['Nombre_dueño'],
+      "correo": values?['Correo_dueño'],
+      "telefono": values?['Celular_dueño'],
+      "fecha_hora": "${values?['Fecha_cita']}T${values?['Hora_cita']}:00Z",
+      "medico": "Por asignar",
+      "estado": "pendiente",
+      "cedula": values?['Cedula_dueño'],
+    };
+
+    try {
+      final response = await CitasService().agendarCita(body);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('¡Cita agendada con éxito!'),
           backgroundColor: Colors.green,
         ),
       );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {
