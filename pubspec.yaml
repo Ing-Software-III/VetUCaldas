@@ -35,6 +35,7 @@ dependencies:
   form_builder_validators: ^11.0.0
   sizer: ^3.0.4
   table_calendar: ^3.0.6  
+  http: ^0.13.5
 
 dev_dependencies:
   flutter_lints: ^4.0.0
