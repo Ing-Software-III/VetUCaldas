@@ -12,7 +12,7 @@ class CitasService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(cita),
       );
-
+      print(cita); 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body); // Respuesta del servidor
       } else {

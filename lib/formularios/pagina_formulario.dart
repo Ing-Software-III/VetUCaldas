@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:vetucaldas/custom/form_builder.dart';
-import 'package:vetucaldas/citas_service.dart';
+import 'package:vetucaldas/conexion/citas_service.dart';
 
 class PaginaFormulario extends StatefulWidget {
   static const String routename = 'formulario';
@@ -17,38 +17,54 @@ class _PaginaFormularioState extends State<PaginaFormulario> {
   final GlobalKey<FormBuilderState> _formkey = GlobalKey<FormBuilderState>();
 
   void _submitForm() async {
-  if (_formkey.currentState?.validate() == true) {
-    final values = _formkey.currentState?.value;
+    if (_formkey.currentState?.validate() == true) {
+      _formkey.currentState
+          ?.save(); // Aseguramos guardar el estado del formulario
+      final values = _formkey.currentState?.value;
 
-    final body = {
-      "nombre_mascota": values?['Nombre_mascota'],
-      "nombre_dueño": values?['Nombre_dueño'],
-      "correo": values?['Correo_dueño'],
-      "telefono": values?['Celular_dueño'],
-      "fecha_hora": "${values?['Fecha_cita']}T${values?['Hora_cita']}:00Z",
-      "medico": "Por asignar",
-      "estado": "pendiente",
-      "cedula": values?['Cedula_dueño'],
-    };
+      // Obtener la fecha y hora del formulario
+      DateTime fecha = values?['Fecha_cita'];
+      DateTime hora = values?['Hora_cita'];
 
-    try {
-      final response = await CitasService().agendarCita(body);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('¡Cita agendada con éxito!'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      // Formatear hora, minutos y segundos con ceros a la izquierda
+      String hours = hora.hour.toString().padLeft(2, '0');
+      String minutes = hora.minute.toString().padLeft(2, '0');
+      String seconds = hora.second.toString().padLeft(2, '0');
+      String formattedTime = '$hours:$minutes:$seconds';
+
+      // Crear el body con los datos
+      final body = {
+        "nombre_mascota": values?['Nombre_mascota'],
+        "nombre_dueño": values?['Nombre_dueño'],
+        "correo": values?['Correo_dueño'],
+        "telefono": values?['Celular_dueño'],
+        "fecha_hora":
+            '${fecha.year}-${fecha.month}-${fecha.day}T$formattedTime', // Usar el valor formateado
+        "cedula": values?['Cedula_dueño'],
+      };
+
+      try {
+        final response = await CitasService().agendarCita(body);
+        // Verificar la respuesta
+        print('Respuesta del servidor: $response');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('¡Cita agendada con éxito!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } else {
+      print('El formulario contiene errores');
     }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +79,8 @@ class _PaginaFormularioState extends State<PaginaFormulario> {
                 // Header con título y botón
                 Container(
                   margin: const EdgeInsets.all(16.0),
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 12.0),
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(10),
@@ -72,7 +89,7 @@ class _PaginaFormularioState extends State<PaginaFormulario> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Agendar cita',
                         style: TextStyle(
                           fontSize: 20,
@@ -83,7 +100,8 @@ class _PaginaFormularioState extends State<PaginaFormulario> {
                       ElevatedButton(
                         onPressed: _submitForm,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(255, 71, 180, 75),
+                          backgroundColor:
+                              const Color.fromARGB(255, 71, 180, 75),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),
@@ -101,8 +119,11 @@ class _PaginaFormularioState extends State<PaginaFormulario> {
                   hinText: 'Nombre de la mascota',
                   icon: Icons.pets,
                   validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(errorText: 'El nombre es requerido'),
-                    FormBuilderValidators.minLength(3, errorText: 'El nombre debe tener al menos 3 caracteres'),
+                    FormBuilderValidators.required(
+                        errorText: 'El nombre es requerido'),
+                    FormBuilderValidators.minLength(3,
+                        errorText:
+                            'El nombre debe tener al menos 3 caracteres'),
                   ]),
                 ),
 
@@ -144,8 +165,11 @@ class _PaginaFormularioState extends State<PaginaFormulario> {
                   hinText: 'Nombre completo del dueño',
                   icon: Icons.person,
                   validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(errorText: 'El nombre es requerido'),
-                    FormBuilderValidators.minLength(3, errorText: 'El nombre debe tener al menos 3 caracteres'),
+                    FormBuilderValidators.required(
+                        errorText: 'El nombre es requerido'),
+                    FormBuilderValidators.minLength(3,
+                        errorText:
+                            'El nombre debe tener al menos 3 caracteres'),
                   ]),
                 ),
 
@@ -154,7 +178,8 @@ class _PaginaFormularioState extends State<PaginaFormulario> {
                   name: 'Cedula_dueño',
                   hinText: 'Cédula de ciudadanía',
                   icon: Icons.badge_outlined,
-                  validator: CustomValidators.colombianCedula(),
+                  validator: FormBuilderValidators.required(
+                      errorText: 'La cédula es requerida'),
                 ),
 
                 FormBuilderCustom(
@@ -162,7 +187,8 @@ class _PaginaFormularioState extends State<PaginaFormulario> {
                   name: 'Celular_dueño',
                   hinText: 'Número de celular',
                   icon: Icons.phone_android,
-                  validator: CustomValidators.colombianPhone(),
+                  validator: FormBuilderValidators.required(
+                      errorText: 'El celular es requerido'),
                 ),
 
                 FormBuilderCustom(
@@ -170,7 +196,12 @@ class _PaginaFormularioState extends State<PaginaFormulario> {
                   name: 'Correo_dueño',
                   hinText: 'Correo electrónico',
                   icon: Icons.email,
-                  validator: CustomValidators.colombianMail(),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(
+                        errorText: 'El correo es requerido'),
+                    FormBuilderValidators.email(
+                        errorText: 'Ingrese un correo válido'),
+                  ]),
                 ),
               ],
             ),
