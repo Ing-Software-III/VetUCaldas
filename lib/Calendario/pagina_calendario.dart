@@ -78,7 +78,7 @@ class _PaginaCalendarioState extends State<PaginaCalendario> {
                     });
                   },
                   calendarFormat: CalendarFormat.month,
-                  calendarStyle: CalendarStyle(
+                  calendarStyle: const CalendarStyle(
                     todayDecoration: BoxDecoration(
                       color: Colors.blueAccent,
                       shape: BoxShape.circle,
@@ -88,7 +88,7 @@ class _PaginaCalendarioState extends State<PaginaCalendario> {
                       shape: BoxShape.circle,
                     ),
                   ),
-                  headerStyle: HeaderStyle(
+                  headerStyle: const HeaderStyle(
                     formatButtonVisible: false,
                     titleCentered: true,
                   ),
