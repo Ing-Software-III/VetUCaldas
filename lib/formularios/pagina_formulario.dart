@@ -57,7 +57,6 @@ class _PaginaFormularioState extends State<PaginaFormulario> {
       // Use the selectedTime string directly instead of trying to parse it as DateTime
       String fechaHora = formatearHoraFecha(hora, fecha);
 
-
       // Create the body with the data
       final body = {
         "nombre_mascota": values?['Nombre_mascota'],
@@ -123,6 +122,9 @@ class _PaginaFormularioState extends State<PaginaFormulario> {
                     FormBuilderValidators.minLength(3,
                         errorText:
                             'El nombre debe tener al menos 3 caracteres'),
+                    FormBuilderValidators.match(RegExp(r'^[a-zA-Z\s]+$'),
+                        errorText:
+                            'El nombre solo puede contener letras y espacios'),
                   ]),
                 ),
 
@@ -238,6 +240,9 @@ class _PaginaFormularioState extends State<PaginaFormulario> {
                     FormBuilderValidators.minLength(3,
                         errorText:
                             'El nombre debe tener al menos 3 caracteres'),
+                    FormBuilderValidators.match(RegExp(r'^[a-zA-Z\s]+$'),
+                        errorText:
+                            'El nombre solo puede contener letras y espacios'),
                   ]),
                 ),
 
