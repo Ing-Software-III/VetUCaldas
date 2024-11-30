@@ -38,5 +38,21 @@ class CitasService {
     }
   }
 
+  Future<List<dynamic>> obtenerCitasCorreo(String correo, DateTime fecha) async {
+    final url = Uri.parse('$_baseUrl/citas/contacto/$correo?fecha_inicio=${fecha.toIso8601String().split('T').first}');
+    try {
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body); // Lista de horarios disponibles
+      } else {
+        throw Exception('Error al obtener disponibilidad: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error de conexión: $e');
+    }
+  }
+  
+
   // Otros métodos como obtener citas por ID, por contacto, etc.
 }

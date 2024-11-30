@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vetucaldas/conexion/citas_service.dart';
 
 class PaginaCalendario extends StatefulWidget {
   static const String routename = 'calendario';
@@ -11,19 +13,57 @@ class PaginaCalendario extends StatefulWidget {
 }
 
 class _PaginaCalendarioState extends State<PaginaCalendario> {
+  final CitasService _citasService = CitasService();
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
+  String? _correoUsuario;
+  Map<DateTime, List<String>> _citas = {};
 
-  // Ejemplo de citas programadas
-  final Map<DateTime, List<String>> _citas = {
-    DateTime(2024, 11, 14): ['Consulta general - 10:00 AM', 'Vacunación - 2:00 PM'],
-    DateTime(2024, 11, 15): ['Chequeo dental - 11:00 AM'],
-    DateTime(2024, 11, 16): ['Cirugía menor - 1:00 PM'],
-  };
+  @override
+  void initState() {
+    super.initState();
+    _loadCorreoUsuario();
+  }
 
-  List<String> _getCitasForSelectedDay(DateTime? selectedDay) {
+  Future<void> _loadCorreoUsuario() async {
+    final prefs = await SharedPreferences.getInstance();
+    final correo = prefs.getString('correo_dueño');
+    _correoUsuario = correo; // Cargar el correo almacenado
+  }
+
+  Future<void> _fetchCitas() async {
+    print('');
+    try {
+      final citasList = await _citasService.obtenerCitasCorreo(_correoUsuario!, _selectedDay!); //citas traidas del backend por correo y fecha
+      setState(() {
+        _citas = {}; // Reinicia el mapa antes de llenarlo
+
+        for (var cita in citasList) {
+          final fechaHora = DateTime.parse(cita['fecha_hora']);
+          final descripcion =
+              'Estado: ${cita['estado']} - Paciente: ${cita['nombre_mascota']} - Hora cita: ${fechaHora.hour.toString().padLeft(2, '0')}:${fechaHora.minute.toString().padLeft(2, '0')}';
+
+          final dateKey =
+              DateTime(fechaHora.year, fechaHora.month, fechaHora.day);
+          if (_citas.containsKey(dateKey)) {
+            _citas[dateKey]!.add(descripcion);
+          } else {
+            _citas[dateKey] = [descripcion];
+          }
+        }
+      });
+    } catch (e) {
+      // Maneja el error mostrando un mensaje en la interfaz
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al obtener citas: $e')),
+      );
+    }
+  }
+
+  List<String> _getCitasForSelectedDay(DateTime? selectedDay) {//obtiene la cita por el dia seleccionado y se agrega para mostrar
     if (selectedDay == null) return [];
-    DateTime normalizedDate = DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
+    DateTime normalizedDate =
+        DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
     return _citas[normalizedDate] ?? [];
   }
 
@@ -41,11 +81,10 @@ class _PaginaCalendarioState extends State<PaginaCalendario> {
           // Imagen de fondo
           SizedBox.expand(
             child: Image.asset(
-              'assets/images/logo.png', // Cambia esta ruta según la ubicación de tu imagen
+              'assets/images/logo.png',
               fit: BoxFit.cover,
             ),
           ),
-          
           // Contenido principal
           Column(
             children: [
@@ -76,6 +115,7 @@ class _PaginaCalendarioState extends State<PaginaCalendario> {
                       _selectedDay = selectedDay;
                       _focusedDay = focusedDay;
                     });
+                    _fetchCitas();
                   },
                   calendarFormat: CalendarFormat.month,
                   calendarStyle: const CalendarStyle(
@@ -94,7 +134,6 @@ class _PaginaCalendarioState extends State<PaginaCalendario> {
                   ),
                 ),
               ),
-              
               const Divider(color: Colors.grey),
 
               // Mostrar cuadro de citas
@@ -104,10 +143,11 @@ class _PaginaCalendarioState extends State<PaginaCalendario> {
                         itemCount: citasDelDia.length,
                         itemBuilder: (context, index) {
                           return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.8), // Fondo con transparencia
+                              color: Colors.white.withOpacity(0.8),
                               borderRadius: BorderRadius.circular(8),
                               boxShadow: [
                                 BoxShadow(
@@ -117,7 +157,8 @@ class _PaginaCalendarioState extends State<PaginaCalendario> {
                                   offset: const Offset(0, 3),
                                 ),
                               ],
-                              border: Border.all(color: Colors.blueAccent, width: 1),
+                              border: Border.all(
+                                  color: Colors.blueAccent, width: 1),
                             ),
                             child: Row(
                               children: [
@@ -126,7 +167,9 @@ class _PaginaCalendarioState extends State<PaginaCalendario> {
                                 Expanded(
                                   child: Text(
                                     citasDelDia[index],
-                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500),
                                   ),
                                 ),
                               ],
