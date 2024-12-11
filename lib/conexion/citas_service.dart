@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class CitasService {
-  static const String _baseUrl = 'http://127.0.0.1:8000/citas';
+  static const String _baseUrl = 'https://vetucaldas-backend.onrender.com/citas';
 
   Future<Map<String, dynamic>> agendarCita(Map<String, dynamic> cita) async {
     final url = Uri.parse('$_baseUrl/agendar');
@@ -12,7 +12,6 @@ class CitasService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(cita),
       );
-      print(cita); 
       if (response.statusCode == 200 || response.statusCode == 201) {
         return jsonDecode(response.body); // Respuesta del servidor
       } else {

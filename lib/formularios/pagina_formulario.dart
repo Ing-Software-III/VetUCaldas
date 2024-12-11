@@ -27,6 +27,7 @@ class _PaginaFormularioState extends State<PaginaFormulario> {
         final List<dynamic> fetchedOptions =
             await CitasService().obtenerDisponibilidad(fechaFormateada);
         setState(() {
+          print("entre");
           // Ensure we convert the dynamic values to strings
           opciones = fetchedOptions.map((option) => option.toString()).toList();
         });
@@ -175,6 +176,7 @@ class _PaginaFormularioState extends State<PaginaFormulario> {
                                 selectedDate = datetime;
                                 opciones = [];
                               });
+                              print('aca estoy');
                               _obtenerOpcionesDropdown();
                             }
                           },
